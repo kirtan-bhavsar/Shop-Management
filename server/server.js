@@ -9,6 +9,8 @@ const port = process.env.PORT;
 
 connectDB();
 
+app.use(express.json());
+
 // Mounting Routers
 app.use("/api/v1/user", userRouter);
 

@@ -1,10 +1,9 @@
 import mongoose from "mongoose";
-import { type } from "./../node_modules/@types/whatwg-url/index.d";
+import bcrypt, { hash } from "bcrypt";
 
 const userSchema = new mongoose.Schema({
-  username: {
+  name: {
     type: String,
-    required: true,
   },
   email: {
     type: String,
@@ -16,4 +15,14 @@ const userSchema = new mongoose.Schema({
   },
 });
 
+userSchema.methods.hashPassword = async function (userPassword) {
+  const salt = await bcrypt.genSalt(10);
+
+  const hashedUserPassword = await bcrypt.hash(userPassword, salt);
+
+  return hashedUserPassword;
+};
+
 const User = mongoose.model("user", userSchema);
+
+export default User;
