@@ -2,6 +2,7 @@ import express from "express";
 import dotenv from "dotenv/config";
 import connectDB from "./db.js";
 import userRouter from "./routes/userRoutes.js";
+import shopRouter from "./routes/shopRoutes.js";
 
 const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json());
 
 // Mounting Routers
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/shop", shopRouter);
 
 app.get("/", (req, res) => {
   res.json({
