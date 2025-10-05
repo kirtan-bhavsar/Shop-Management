@@ -1,6 +1,7 @@
 import express from "express";
 import Shop from "../models/Shop.js";
 import User from "../models/User.js";
+import Product from "../models/Product.js";
 
 const addShop = async (req, res) => {
   const userId = req.user.id;
@@ -90,4 +91,42 @@ const editShop = async (req, res) => {
   }
 };
 
-export { addShop, editShop };
+const getAllShopsWithProducts = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    if (!userId) {
+      return res
+        .status(400)
+        .json({ message: "User not authorized to perform this action" });
+    }
+
+    // Fetch shops created by logged-in user
+    const shops = await Shop.find({ user: userId });
+
+    if (!shops || shops.length === 0) {
+      return res.status(404).json({ message: "No shops found for this user" });
+    }
+
+    const shopData = [];
+
+    for (const shop of shops) {
+      const products = await Product.find({ shop: shop._id });
+      shopData.push({
+        Shop: { name: shop.name },
+        Products: products,
+      });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "Shops fetched successfully", data: shopData });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Internal Server Error while fetching shops" });
+  }
+};
+
+export { addShop, editShop, getAllShopsWithProducts };
