@@ -45,7 +45,35 @@ const registerUser = async (req, res) => {
 };
 
 const loginUser = async (req, res) => {
-  res.status(200).json({ message: "User loggged in successfully" });
+  const { email, password } = req.body;
+
+  if (!email) {
+    return res.status(400).json({ message: "Email id cannot be blank" });
+  }
+
+  const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+  if (!emailRegex.test(email)) {
+    return res.status(400).json({ message: "Please provide a valid email id" });
+  }
+
+  if (!password) {
+    return res.status(400).json({ message: "Password cannot be blank" });
+  }
+
+  const userExists = await User.findOne({ email });
+
+  if (!userExists) {
+    return res.status(400).json({ message: "No user found for this email" });
+  }
+
+  const passwordMatches = await bcrypt.compare(password, userExists.password);
+
+  if (!passwordMatches) {
+    return res.status(400).json({ message: "Incorrect Password" });
+  }
+
+  generateToken(res, userExists);
 };
 
 export { registerUser, loginUser };
